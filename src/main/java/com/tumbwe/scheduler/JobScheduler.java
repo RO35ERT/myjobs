@@ -23,11 +23,11 @@ public class JobScheduler {
     EmailService emailService;
 
     /**
-     * Runs at 12:00 and 18:00 Africa/Lusaka.
+     * Runs at 06:00, 12:00, and 18:00 Africa/Lusaka.
      * Note: Ensure the system timezone is set to Africa/Lusaka or configure the cron to offset accordingly.
      * Quartz cron: second minute hour dayMonth month dayWeek [year]
      */
-    @Scheduled(cron = "0 16 10,18 * * ?")
+    @Scheduled(cron = "0 0 6,12,18 * * ?")
     public void scheduledScrape() {
         LOG.info("Starting scheduled job scraping cycle...");
         try {
