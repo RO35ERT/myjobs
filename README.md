@@ -1,62 +1,93 @@
-# mythings
+# Job Scraper (MyThings)
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+A Quarkus-based job scraper and aggregation service that fetches jobs from specified sites, filters them by keywords, deduplicates them, and emails a daily digest.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+## 🛠️ Prerequisites
 
-## Running the application in dev mode
+- **Java 21**
+- **Gradle** (or use the included wrapper `./gradlew`)
+- **GraalVM** (optional, for local native compilation)
 
-You can run your application in dev mode that enables live coding using:
+## ⚙️ Configuration (.env)
 
-```shell script
+Before running or deploying the application, you must configure your environment variables. 
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+2. Fill out your `.env` file with your SMTP credentials and recipient details:
+   ```env
+   MYJOBS_SMTP_HOST=smtp.gmail.com
+   MYJOBS_SMTP_PORT=587
+   MYJOBS_SMTP_USERNAME=your-sender@gmail.com
+   MYJOBS_SMTP_PASSWORD=your-app-password
+   MYJOBS_EMAIL_FROM=jobs@bob.com
+   MYJOBS_EMAIL_RECIPIENT=your-recipient@gmail.com
+   ```
+
+*(Note: `.env` is ignored by git to protect your secrets.)*
+
+## 💻 Local Development (Windows & Linux)
+
+To run the application locally in development mode (with live reloading):
+
+**On Windows:**
+```cmd
+gradlew.bat quarkusDev
+```
+
+**On Linux / macOS:**
+```bash
 ./gradlew quarkusDev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+The app will start and automatically pick up the variables from your `.env` file.
 
-## Packaging and running the application
+## 🚀 Deployment: Linux VPS (Native Binary - Recommended)
 
-The application can be packaged using:
+We use a GitHub Actions CI pipeline that automatically provisions a native Linux binary whenever you push to `main`. This binary is incredibly memory-efficient and perfect for a small VPS (around 20MB-30MB RAM usage).
 
-```shell script
-./gradlew build
+### Step-by-Step Linux VPS Deployment:
+
+1. **Push your code** to the `main` branch to trigger the GitHub Action.
+2. **SSH into your VPS**.
+3. **Create your `.env` file** on the VPS in the directory where you'll run the app.
+4. **Download the binary** from your GitHub repository releases:
+   ```bash
+   # Replace YOUR_GITHUB_USERNAME and YOUR_REPO_NAME and with the version (e.g. v261.0.1)
+   wget https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/releases/download/v261.0.1/mythings-native-runner
+   ```
+5. **Make it executable**:
+   ```bash
+   chmod +x mythings-native-runner
+   ```
+6. **Run it** in the background:
+   ```bash
+   nohup ./mythings-native-runner > application.log 2>&1 &
+   ```
+   *(The app will automatically read from the `.env` file in the same directory).*
+
+## 🏁 Deployment: Windows Machine
+
+Because the GitHub CI process compiles the native binary exclusively for Linux (`ubuntu-latest`), you cannot run that specific binary directly on Windows without WSL.
+
+To deploy on a standard Windows machine, you should use the standard Java JVM run:
+
+### Step-by-Step Windows Deployment:
+
+1. Ensure **Java 21** is installed on the target Windows machine.
+2. Build the standard JAR locally (or copy the project over):
+   ```cmd
+   gradlew.bat build
+   ```
+3. Copy the `build/quarkus-app/` folder to your deployment directory.
+4. Ensure your `.env` file is in the same directory. 
+5. Run the application via Java:
+   ```cmd
+   java -jar build/quarkus-app/quarkus-run.jar
+   ```
+
+Alternatively, if you strictly need a Native Windows executable, you will need to install **GraalVM** and **Visual Studio Build Tools (MSVC)** on your Windows machine and compile it locally via:
+```cmd
+gradlew.bat build -Dquarkus.package.type=native
 ```
-
-It produces the `quarkus-run.jar` file in the `build/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `build/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar build/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./gradlew build -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar build/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./build/mythings-1.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
-
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)

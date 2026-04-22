@@ -1,0 +1,48 @@
+name: Build Native Image
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Quarkus Native
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up GraalVM Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'graalvm-community'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build Native Image
+        run: ./gradlew build -Dquarkus.package.type=native
+
+      - name: Publish Native Binary to GitHub Release
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Give GitHub Actions Write permissions for releases! 
+          # (Repo Settings -> Actions -> General -> Workflow permissions -> Read and write permissions)
+          
+          # Version format: Year (26) + Major (1) . Minor (0) . Build (github.run_number)
+          VERSION="261.0.${{ github.run_number }}"
+          
+          # Rename the runner for a cleaner download name
+          mv build/*-runner mythings-native-runner
+          
+          # Create a new versioned release and upload the binary
+          gh release create "v$VERSION" mythings-native-runner \
+            --title "Release v$VERSION" \
+            --notes "Automated native build v$VERSION from the latest commit."
