@@ -60,10 +60,10 @@ public class EmailService {
                      "Please use a v3 API Key (starts with 'xkeysib-') from https://app.brevo.com/settings/keys/api");
         }
 
-        ApiClient defaultClient = Configuration.getDefaultApiClient();
-        ApiKeyAuth apiKeyAuth = (ApiKeyAuth) defaultClient.getAuthentication("api-key");
+        ApiClient client = new ApiClient();
+        ApiKeyAuth apiKeyAuth = (ApiKeyAuth) client.getAuthentication("api-key");
         apiKeyAuth.setApiKey(apiKey);
-        apiInstance = new TransactionalEmailsApi(defaultClient);
+        apiInstance = new TransactionalEmailsApi(client);
         LOG.debug("Brevo API client initialized with key starting with: {}", apiKey.substring(0, Math.min(apiKey.length(), 10)));
     }
 
