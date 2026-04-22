@@ -30,7 +30,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build Native Image
-        run: ./gradlew build -Dquarkus.package.type=native
+        run: ./gradlew build -Dquarkus.native.enabled=true
 
       - name: Publish Native Binary to GitHub Release
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
