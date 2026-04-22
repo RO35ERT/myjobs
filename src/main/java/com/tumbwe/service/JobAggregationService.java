@@ -80,7 +80,7 @@ public class JobAggregationService {
                 }
             }
             return lines.stream()
-                    .map(String::trim)
+                    .map(line -> line.replaceAll("[^\\x20-\\x7E]", "").trim())
                     .filter(line -> !line.isEmpty() && !line.startsWith("#"))
                     .collect(Collectors.toList());
         } catch (IOException e) {
