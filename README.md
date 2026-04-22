@@ -43,9 +43,13 @@ gradlew.bat quarkusDev
 
 The app will start and automatically pick up the variables from your `.env` file.
 
+Note: Quarkus loads `.env` from the *current working directory* as a config source (it does **not** export values to `System.getenv()` / `printenv`).
+
 ## 🚀 Deployment: Linux VPS (Native Binary - Recommended)
 
 We use a GitHub Actions CI pipeline that automatically provisions a native Linux binary whenever you push to `main`. This binary is incredibly memory-efficient and perfect for a small VPS (around 20MB-30MB RAM usage).
+
+Note: On DigitalOcean Droplets, outbound SMTP ports 25, 465, and 587 are blocked by default (so Gmail SMTP will time out). Use a third-party email provider/API instead: https://docs.digitalocean.com/support/why-is-smtp-blocked/
 
 ### Step-by-Step Linux VPS Deployment:
 
@@ -65,7 +69,7 @@ We use a GitHub Actions CI pipeline that automatically provisions a native Linux
    ```bash
    nohup ./mythings-native-runner > application.log 2>&1 &
    ```
-   *(The app will automatically read from the `.env` file in the same directory).*
+   *(Quarkus reads `.env` from the current working directory at startup. Run the binary from the folder that contains `.env`.)*
 
 ## 🏁 Deployment: Windows Machine
 
