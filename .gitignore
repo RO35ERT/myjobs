@@ -34,6 +34,13 @@ nb-configuration.xml
 
 # Local environment
 .env
+.env.*
+!.env.example
+
+# Build and scraper outputs
+*.log
+build_log.txt
+gozambiajobs.txt
 
 # Plugin directory
 /.quarkus/cli/plugins/

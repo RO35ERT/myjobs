@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Software Job Digest</title>
+    <style>
+        /* Mobile-first approach */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #1e293b;
+        }
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f8fafc;
+            padding-bottom: 40px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: #0f172a;
+        }
+        .header p {
+            margin: 10px 0 0;
+            font-size: 14px;
+            color: #64748b;
+        }
+        .content {
+            padding: 20px;
+        }
+        .job-card {
+            margin-bottom: 24px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            transition: border-color 0.2s;
+        }
+        .job-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2563eb;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .company-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 12px;
+        }
+        .job-meta {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+        .job-meta span {
+            display: inline-block;
+            margin-right: 15px;
+        }
+        .view-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #0f172a;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .footer {
+            padding: 30px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Responsive adjustments */
+        @media screen and (max-width: 600px) {
+            .header { padding: 30px 15px; }
+            .content { padding: 15px; }
+            .job-card { padding: 15px; }
+            .header h1 { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <h1>Job Digest</h1>
+                <p>Curated software listings for you</p>
+            </div>
+
+            <!-- Job Listings -->
+            <div class="content">
+                {#for job in jobs}
+                <div class="job-card">
+                    <a href="{job.link}" class="job-title">{job.title}</a>
+                    <div class="company-name">{job.company}</div>
+                    <div class="job-meta">
+                        <span>📍 {job.location}</span>
+                        <span>🌐 {job.sourceUrl}</span>
+                    </div>
+                    <a href="{job.link}" class="view-button">View Listing</a>
+                </div>
+                {/for}
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>Sent by your Automated Job Assistant</p>
+                <p>{now}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
