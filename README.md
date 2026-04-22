@@ -15,13 +15,11 @@ Before running or deploying the application, you must configure your environment
    ```bash
    cp .env.example .env
    ```
-2. Fill out your `.env` file with your SMTP credentials and recipient details:
+2. Fill out your `.env` file with your Brevo API credentials and recipient details:
    ```env
-   MYJOBS_SMTP_HOST=smtp.gmail.com
-   MYJOBS_SMTP_PORT=587
-   MYJOBS_SMTP_USERNAME=your-sender@gmail.com
-   MYJOBS_SMTP_PASSWORD=your-app-password
-   MYJOBS_EMAIL_FROM=jobs@bob.com
+   BREVO_API_KEY=your_brevo_api_key_here
+   BREVO_SENDER_NAME=My Job Scraper
+   BREVO_SENDER_EMAIL=your-verified-sender@example.com
    MYJOBS_EMAIL_RECIPIENT=your-recipient@gmail.com
    ```
 

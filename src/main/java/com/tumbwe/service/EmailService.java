@@ -68,9 +68,32 @@ public class EmailService {
     }
 
     public void sendDigest(List<JobListing> jobs) {
+        if (apiInstance == null) {
+            LOG.error("Brevo API client is not initialized; skipping email send. Check brevo.api.key / BREVO_API_KEY.");
+            return;
+        }
+
         if (jobs.isEmpty()) {
             LOG.info("No new jobs to send. Skipping email.");
             return;
+        }
+
+        String resolvedRecipient = recipient == null ? "" : recipient.trim();
+        String resolvedSenderEmail = senderEmail == null ? "" : senderEmail.trim();
+        String resolvedSenderName = senderName == null ? "" : senderName.trim();
+
+        if (resolvedRecipient.isBlank()) {
+            LOG.error("Email recipient is missing/blank; skipping digest. Set job.scraper.email.recipient / MYJOBS_EMAIL_RECIPIENT.");
+            return;
+        }
+
+        if (resolvedSenderEmail.isBlank()) {
+            LOG.error("Brevo sender email is missing/blank; skipping digest. Set brevo.sender.email (env: BREVO_SENDER_EMAIL or MYJOBS_EMAIL_FROM).");
+            return;
+        }
+
+        if (resolvedSenderName.isBlank()) {
+            resolvedSenderName = "My Job Scraper";
         }
 
         String html = JobDigestTemplate
@@ -79,10 +102,14 @@ public class EmailService {
                 .render();
 
         SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
-        sendSmtpEmail.setSender(new SendSmtpEmailSender().name(senderName).email(senderEmail));
-        sendSmtpEmail.setTo(Collections.singletonList(new SendSmtpEmailTo().email(recipient)));
+        sendSmtpEmail.setSender(new SendSmtpEmailSender().name(resolvedSenderName).email(resolvedSenderEmail));
+        sendSmtpEmail.setTo(Collections.singletonList(new SendSmtpEmailTo().email(resolvedRecipient)));
         sendSmtpEmail.setSubject("Daily Software Job Digest");
         sendSmtpEmail.setHtmlContent(html);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Sending Brevo digest: jobs={}, from=\"{}\" <{}>, to={}", jobs.size(), resolvedSenderName, resolvedSenderEmail, resolvedRecipient);
+        }
 
         try {
             brevoModel.CreateSmtpEmail result = apiInstance.sendTransacEmail(sendSmtpEmail);
