@@ -65,6 +65,17 @@ Note: On DigitalOcean Droplets, outbound SMTP ports 25, 465, and 587 are blocked
    ```
 6. **Run it** in the background:
    ```bash
+   # Ensure you're in the folder that contains both the binary and .env
+   cd /path/to/your/app
+
+   # If you edited .env on Windows, remove CRLF (optional but recommended)
+   sed -i 's/\r$//' .env
+
+   # Export variables from .env so the native process always sees them
+   set -a
+   . ./.env
+   set +a
+
    nohup ./mythings-native-runner > application.log 2>&1 &
    ```
    *(Quarkus reads `.env` from the current working directory at startup. Run the binary from the folder that contains `.env`.)*
