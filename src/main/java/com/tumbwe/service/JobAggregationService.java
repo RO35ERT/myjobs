@@ -63,13 +63,28 @@ public class JobAggregationService {
 
     private List<String> loadSites() {
         try {
-            return Files.readAllLines(Path.of(sitesFilePath))
-                    .stream()
+            List<String> lines;
+            Path path = Path.of(sitesFilePath);
+            if (Files.exists(path)) {
+                lines = Files.readAllLines(path);
+            } else {
+                // Fallback to classpath resource
+                try (var is = getClass().getClassLoader().getResourceAsStream(sitesFilePath)) {
+                    if (is == null) {
+                        LOG.error("Could not find sites file at {} on filesystem or classpath.", sitesFilePath);
+                        return List.of();
+                    }
+                    lines = new java.io.BufferedReader(new java.io.InputStreamReader(is))
+                            .lines().collect(Collectors.toList());
+                    LOG.info("Loaded sites from classpath: {}", sitesFilePath);
+                }
+            }
+            return lines.stream()
                     .map(String::trim)
                     .filter(line -> !line.isEmpty() && !line.startsWith("#"))
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            LOG.error("Could not read sites file at {}: {}", sitesFilePath, e.getMessage());
+            LOG.error("Error reading sites file {}: {}", sitesFilePath, e.getMessage());
             return List.of();
         }
     }
