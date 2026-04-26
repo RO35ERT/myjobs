@@ -38,6 +38,11 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
     org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodMessage.class,
     org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodBoolean.class,
     org.telegram.telegrambots.meta.api.methods.BotApiMethod.class,
+    org.telegram.telegrambots.meta.api.methods.updates.GetUpdates.class,
+    org.telegram.telegrambots.meta.api.methods.updates.SetWebhook.class,
+    org.telegram.telegrambots.meta.api.methods.updates.DeleteWebhook.class,
+    org.telegram.telegrambots.meta.api.methods.GetMe.class,
+    org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands.class,
     com.tumbwe.bot.MyJobsTelegramBot.class
 }, registerFullHierarchy = true)
 public class TelegramReflectionConfig {
