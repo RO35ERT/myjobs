@@ -20,6 +20,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-jackson'
     implementation 'org.jsoup:jsoup:1.17.2'
     implementation 'org.telegram:telegrambots:6.8.0'
+    implementation 'org.osgi:org.osgi.core:6.0.0'
     implementation 'io.quarkus:quarkus-hibernate-orm-panache'
     implementation 'io.quarkiverse.jdbc:quarkus-jdbc-sqlite:3.0.11'
     testImplementation 'io.quarkus:quarkus-junit'
