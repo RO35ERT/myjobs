@@ -32,7 +32,8 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
     org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberLeft.class,
     org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberMember.class,
     org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberOwner.class,
-    org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberRestricted.class
+    org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberRestricted.class,
+    org.telegram.telegrambots.meta.api.objects.chatmember.serialization.ChatMemberDeserializer.class
 })
 public class TelegramReflectionConfig {
 }
