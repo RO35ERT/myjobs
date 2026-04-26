@@ -42,7 +42,8 @@ public class ScraperResource {
                 "Quarkus Lab", 
                 "Remote", 
                 "https://example.com/test-job-" + System.currentTimeMillis(), 
-                "Test Source"
+                "Test Source",
+                "Test Description"
             );
             emailService.sendDigest(List.of(testJob));
             return "Test email sent. Check your inbox and logs.";

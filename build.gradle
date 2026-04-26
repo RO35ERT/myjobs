@@ -13,14 +13,38 @@ dependencies {
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-rest'
     implementation 'io.quarkus:quarkus-scheduler'
-    implementation 'com.brevo:brevo:1.1.4'
+    implementation('com.brevo:brevo:1.1.4') {
+        exclude group: 'org.glassfish.jersey'
+        exclude group: 'org.glassfish.jersey.core'
+        exclude group: 'org.glassfish.jersey.media'
+        exclude group: 'org.glassfish.jersey.connectors'
+        exclude group: 'org.glassfish.jersey.inject'
+        exclude group: 'org.glassfish.jersey.ext'
+        exclude group: 'com.fasterxml.jackson.module', module: 'jackson-module-jaxb-annotations'
+    }
     implementation 'io.quarkus:quarkus-qute'
     implementation 'io.quarkus:quarkus-cache'
     implementation 'io.quarkus:quarkus-smallrye-fault-tolerance'
     implementation 'io.quarkus:quarkus-jackson'
     implementation 'org.jsoup:jsoup:1.17.2'
+    implementation 'org.telegram:telegrambots:6.8.0'
+    implementation 'com.sun.activation:javax.activation:1.2.0'
+    implementation 'io.quarkus:quarkus-hibernate-orm-panache'
+    implementation 'io.quarkiverse.jdbc:quarkus-jdbc-sqlite:3.0.11'
     testImplementation 'io.quarkus:quarkus-junit'
     testImplementation 'io.rest-assured:rest-assured'
+}
+
+configurations.all {
+    exclude group: 'org.glassfish.jersey'
+    exclude group: 'org.glassfish.jersey.core'
+    exclude group: 'org.glassfish.jersey.media'
+    exclude group: 'org.glassfish.jersey.connectors'
+    exclude group: 'org.glassfish.jersey.inject'
+    exclude group: 'org.glassfish.jersey.ext'
+    exclude group: 'org.glassfish.jersey.bundles'
+    exclude group: 'org.glassfish.jersey.containers'
+    exclude group: 'com.fasterxml.jackson.module', module: 'jackson-module-jaxb-annotations'
 }
 
 group = 'com.tumbwe'

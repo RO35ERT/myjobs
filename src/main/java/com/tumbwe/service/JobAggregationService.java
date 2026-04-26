@@ -2,9 +2,6 @@ package com.tumbwe.service;
 
 import com.tumbwe.model.JobListing;
 import com.tumbwe.scraper.Scraper;
-import io.quarkus.cache.Cache;
-import io.quarkus.cache.CacheName;
-import io.smallrye.faulttolerance.api.RateLimit;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -20,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.tumbwe.model.JobEntity;
+import jakarta.transaction.Transactional;
+
 @ApplicationScoped
 public class JobAggregationService {
 
@@ -27,10 +27,6 @@ public class JobAggregationService {
 
     @Inject
     Instance<Scraper> scrapers;
-
-    @Inject
-    @CacheName("job-deduplication")
-    Cache deduplicationCache;
 
     @ConfigProperty(name = "job.scraper.sites-file", defaultValue = "sites.txt")
     String sitesFilePath;
@@ -41,7 +37,7 @@ public class JobAggregationService {
     @Retry(maxRetries = 3, delay = 1000)
     public List<JobListing> collectAllJobs() {
         List<String> urls = loadSites();
-        List<JobListing> allNewJobs = new ArrayList<>();
+        List<JobListing> newlyInsertedJobs = new ArrayList<>();
 
         for (String url : urls) {
             Scraper scraper = findScraper(url);
@@ -50,15 +46,30 @@ public class JobAggregationService {
             List<JobListing> scrapedJobs = scraper.scrape(url);
             
             for (JobListing job : scrapedJobs) {
-                if (isNewAndMatches(job)) {
-                    allNewJobs.add(job);
-                    // Mark as seen
-                    deduplicationCache.get(job.link(), k -> true).await().indefinitely();
+                if (persistJobIfNotExists(job)) {
+                    newlyInsertedJobs.add(job);
                 }
             }
         }
 
-        return allNewJobs;
+        return newlyInsertedJobs;
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public boolean persistJobIfNotExists(JobListing job) {
+        if (JobEntity.findByLink(job.link()) == null) {
+            JobEntity entity = new JobEntity();
+            entity.title = job.title();
+            entity.company = job.company();
+            entity.location = job.location();
+            entity.link = job.link();
+            entity.sourceUrl = job.sourceUrl();
+            entity.description = job.description();
+            entity.scrapedAt = java.time.LocalDateTime.now();
+            entity.persist();
+            return true;
+        }
+        return false;
     }
 
     private List<String> loadSites() {
@@ -90,34 +101,25 @@ public class JobAggregationService {
     }
 
     private Scraper findScraper(String url) {
-        // Find a specialized scraper first
+        Scraper generic = null;
         for (Scraper s : scrapers) {
-            if (!(s.getClass().getSimpleName().contains("GenericScraper")) && s.supports(url)) {
-                return s;
+            if (s.isGeneric()) {
+                generic = s;
+            } else if (s.supports(url)) {
+                return s; // Found a specialized scraper
             }
         }
-        // Fallback to Generic
-        return scrapers.stream()
-                .filter(s -> s.getClass().getSimpleName().contains("GenericScraper"))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No scrapers found"));
+        if (generic == null) {
+            throw new IllegalStateException("No scrapers found and GenericScraper is missing");
+        }
+        return generic;
     }
 
-    private boolean isNewAndMatches(JobListing job) {
-        // 1. Check Keywords
-        boolean matches = keywords.stream()
-                .anyMatch(kw -> job.title().toLowerCase().contains(kw.toLowerCase()));
-        
-        if (!matches) return false;
-
-        // 2. Check Deduplication Cache
-        // We use a marker to detect if the loader was called (meaning it's new)
-        java.util.concurrent.atomic.AtomicBoolean isNew = new java.util.concurrent.atomic.AtomicBoolean(false);
-        deduplicationCache.get(job.link(), k -> {
-            isNew.set(true);
-            return Boolean.TRUE;
-        }).await().indefinitely();
-        
-        return isNew.get();
+    public List<JobListing> filterForAdmin(List<JobListing> jobs) {
+        if (keywords == null || keywords.isEmpty()) return jobs;
+        return jobs.stream()
+                .filter(job -> keywords.stream()
+                        .anyMatch(kw -> job.title().toLowerCase().contains(kw.toLowerCase())))
+                .collect(Collectors.toList());
     }
 }
