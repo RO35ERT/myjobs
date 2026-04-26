@@ -64,6 +64,10 @@ public class MyJobsTelegramBot extends TelegramLongPollingBot {
     }
 
     public void sendMessage(Long chatId, String text) {
+        if (text == null || text.isBlank()) {
+            LOG.warn("Refusing to send empty/blank message to chat {}", chatId);
+            return;
+        }
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(text);
