@@ -6,9 +6,13 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class BotService {
+    private static final Logger LOG = LoggerFactory.getLogger(BotService.class);
+
 
     private static final String HELP_MESSAGE =
             "Here's what you can do:\n\n" +
@@ -26,12 +30,15 @@ public class BotService {
 
     @Transactional
     public String processMessage(Long chatId, String text) {
+        TelegramUser user = TelegramUser.findByChatId(chatId);
+        LOG.info("Processing message from {}: '{}' (User exists: {}, State: {})", 
+                chatId, text, (user != null), (user != null ? user.state : "N/A"));
+        
         if (text == null) return "⚠️ Empty message.";
         if (text.length() > 500) {
             return "⚠️ Your message is too long. Please keep it under 500 characters.";
         }
 
-        TelegramUser user = TelegramUser.findByChatId(chatId);
         String trimmedText = text.trim();
 
         // ── Global commands (work at any state) ────────────────────────────

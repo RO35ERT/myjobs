@@ -17,6 +17,7 @@ public class MyJobsTelegramBot extends TelegramLongPollingBot {
     private final String botUsername;
     private final String botToken;
     private final BotService botService;
+    private final long startupTime = System.currentTimeMillis() / 1000;
 
     // Required for Quarkus CDI Proxy
     protected MyJobsTelegramBot() {
@@ -52,6 +53,14 @@ public class MyJobsTelegramBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String text = update.getMessage().getText();
             Long chatId = update.getMessage().getChatId();
+            Integer messageDate = update.getMessage().getDate();
+
+            // Ignore messages sent before the bot started (backlog)
+            if (messageDate != null && messageDate < startupTime - 2) {
+                LOG.info("Ignoring backlog message from {}: '{}' (sent at {}, startup at {})", 
+                        chatId, text, messageDate, startupTime);
+                return;
+            }
 
             try {
                 String response = botService.processMessage(chatId, text);
