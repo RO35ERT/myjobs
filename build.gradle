@@ -14,10 +14,12 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest'
     implementation 'io.quarkus:quarkus-scheduler'
     implementation('com.brevo:brevo:1.1.4') {
+        exclude group: 'org.glassfish.jersey'
         exclude group: 'org.glassfish.jersey.core'
         exclude group: 'org.glassfish.jersey.media'
         exclude group: 'org.glassfish.jersey.connectors'
         exclude group: 'org.glassfish.jersey.inject'
+        exclude group: 'org.glassfish.jersey.ext'
         exclude group: 'com.fasterxml.jackson.module', module: 'jackson-module-jaxb-annotations'
     }
     implementation 'io.quarkus:quarkus-qute'
@@ -31,6 +33,18 @@ dependencies {
     implementation 'io.quarkiverse.jdbc:quarkus-jdbc-sqlite:3.0.11'
     testImplementation 'io.quarkus:quarkus-junit'
     testImplementation 'io.rest-assured:rest-assured'
+}
+
+configurations.all {
+    exclude group: 'org.glassfish.jersey'
+    exclude group: 'org.glassfish.jersey.core'
+    exclude group: 'org.glassfish.jersey.media'
+    exclude group: 'org.glassfish.jersey.connectors'
+    exclude group: 'org.glassfish.jersey.inject'
+    exclude group: 'org.glassfish.jersey.ext'
+    exclude group: 'org.glassfish.jersey.bundles'
+    exclude group: 'org.glassfish.jersey.containers'
+    exclude group: 'com.fasterxml.jackson.module', module: 'jackson-module-jaxb-annotations'
 }
 
 group = 'com.tumbwe'
