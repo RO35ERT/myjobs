@@ -48,6 +48,8 @@ public class BotService {
                 user.lastNotifiedAt = LocalDateTime.now();
             }
             user.state = UserState.AWAITING_NAME;
+            user.name = null;
+            user.frequency = null;
             user.persist();
             UserPreference.delete("user.chatId", chatId);
             return "👋 Welcome! What should we call you?";
@@ -148,6 +150,13 @@ public class BotService {
     }
 
     private String buildProfile(TelegramUser user, Long chatId) {
+        if (user.state != UserState.REGISTERED) {
+            return "👤 *Profile (Incomplete)*\n\n" +
+                   "You haven't finished setting up your profile yet! Send /start to complete your registration.\n\n" +
+                   "🏷️ Name: " + (user.name != null ? user.name : "Not set") + "\n" +
+                   "🔍 Job Preferences: " + buildKeywordList(chatId);
+        }
+
         String keywords = buildKeywordList(chatId);
         String freq = user.frequency != null ? friendlyFrequency(user.frequency) : "Not set";
         return "👤 *Your Profile*\n\n" +
