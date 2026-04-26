@@ -67,6 +67,7 @@ public class MyJobsTelegramBot extends TelegramLongPollingBot {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(text);
+        message.setParseMode("Markdown");
         try {
             execute(message);
         } catch (TelegramApiException e) {
