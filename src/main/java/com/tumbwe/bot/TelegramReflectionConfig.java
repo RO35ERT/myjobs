@@ -7,6 +7,11 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
  * required for Jackson deserialization in GraalVM native image.
  */
 @RegisterForReflection(targets = {
+    // Telegram Bot infrastructure (instantiated via reflection)
+    org.telegram.telegrambots.updatesreceivers.DefaultBotSession.class,
+    org.telegram.telegrambots.facilities.TelegramHttpClientBuilder.class,
+    org.telegram.telegrambots.meta.generics.BotSession.class,
+    // Telegram API model classes (Jackson deserialization)
     org.telegram.telegrambots.meta.api.objects.ApiResponse.class,
     org.telegram.telegrambots.meta.api.objects.Update.class,
     org.telegram.telegrambots.meta.api.objects.Message.class,
