@@ -31,7 +31,7 @@ public class GoZambiaJobsScraper implements Scraper {
     public List<JobListing> scrape(String url) {
         List<JobListing> jobs = new ArrayList<>();
         try {
-            Document doc = Jsoup.connect(url).get();
+            Document doc = Jsoup.connect(url).timeout(10_000).get();
             Elements scripts = doc.select("script");
             
             for (Element script : scripts) {
@@ -48,8 +48,9 @@ public class GoZambiaJobsScraper implements Scraper {
                             String location = node.get("location").asText("N/A");
                             String detailsPath = node.get("job_details_path").asText();
                             String link = BASE_URL + detailsPath;
+                            String description = node.path("excerpt").asText("");
                             
-                            jobs.add(new JobListing(title, company, location, link, url));
+                            jobs.add(new JobListing(title, company, location, link, url, description));
                         }
                     }
                 }

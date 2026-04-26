@@ -8,6 +8,7 @@ public record JobListing(
     String company,
     String location,
     String link,
-    String sourceUrl
+    String sourceUrl,
+    String description
 ) {
 }

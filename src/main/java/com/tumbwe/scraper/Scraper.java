@@ -17,4 +17,13 @@ public interface Scraper {
      * @return True if supported, false otherwise.
      */
     boolean supports(String url);
+
+    /**
+     * Returns true if this is the generic catch-all scraper.
+     * Used to correctly prioritise specialist scrapers over the generic one
+     * without relying on brittle class-name string matching.
+     */
+    default boolean isGeneric() {
+        return false;
+    }
 }

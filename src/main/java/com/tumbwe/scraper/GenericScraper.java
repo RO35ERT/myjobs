@@ -27,6 +27,7 @@ public class GenericScraper implements Scraper {
         try {
             Document doc = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
+                    .timeout(10_000)
                     .get();
 
             // Heuristic 1: Look for elements that likely contain a job listing
@@ -40,7 +41,7 @@ public class GenericScraper implements Scraper {
                     String title = link.text().trim();
                     if (title.length() > 5) { // Basic sanity check
                         String absoluteUrl = link.absUrl("href");
-                        jobs.add(new JobListing(title, "Unknown Company", "Unknown Location", absoluteUrl, url));
+                        jobs.add(new JobListing(title, "Unknown Company", "Unknown Location", absoluteUrl, url, ""));
                     }
                 }
             } else {
@@ -61,8 +62,17 @@ public class GenericScraper implements Scraper {
                         Element locationEl = item.selectFirst(".location, .address, .city");
                         if (locationEl != null) location = locationEl.text().trim();
 
+                        String description = "";
+                        Element descEl = item.selectFirst("p, .description, .excerpt, .summary");
+                        if (descEl != null) {
+                            description = descEl.text().trim();
+                            if (description.length() > 1900) {
+                                description = description.substring(0, 1900) + "...";
+                            }
+                        }
+
                         if (!title.isEmpty() && !absoluteUrl.isEmpty()) {
-                            jobs.add(new JobListing(title, company, location, absoluteUrl, url));
+                            jobs.add(new JobListing(title, company, location, absoluteUrl, url, description));
                         }
                     }
                 }
@@ -76,6 +86,11 @@ public class GenericScraper implements Scraper {
     @Override
     public boolean supports(String url) {
         // This is a catch-all for URLs not handled by specific scrapers
+        return true;
+    }
+
+    @Override
+    public boolean isGeneric() {
         return true;
     }
 }

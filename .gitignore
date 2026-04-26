@@ -27,7 +27,8 @@ nb-configuration.xml
 # Vim
 *.swp
 *.swo
-
+*.db
+jobs.*
 # patch
 *.orig
 *.rej

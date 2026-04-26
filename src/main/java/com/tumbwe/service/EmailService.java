@@ -119,4 +119,70 @@ public class EmailService {
                 e.getMessage(), e.getCode(), e.getResponseBody());
         }
     }
+
+    public void sendPlainText(String subject, String body) {
+        if (apiInstance == null) {
+            LOG.error("Brevo API client is not initialized; skipping plain text email.");
+            return;
+        }
+
+        String resolvedRecipient = recipient == null ? "" : recipient.trim();
+        String resolvedSenderEmail = senderEmail == null ? "" : senderEmail.trim();
+        String resolvedSenderName = senderName == null ? "" : senderName.trim();
+
+        if (resolvedRecipient.isBlank() || resolvedSenderEmail.isBlank()) {
+            LOG.error("Missing recipient or sender email for plain text email.");
+            return;
+        }
+        if (resolvedSenderName.isBlank()) {
+            resolvedSenderName = "My Job Scraper";
+        }
+
+        SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
+        sendSmtpEmail.setSender(new SendSmtpEmailSender().name(resolvedSenderName).email(resolvedSenderEmail));
+        sendSmtpEmail.setTo(Collections.singletonList(new SendSmtpEmailTo().email(resolvedRecipient)));
+        sendSmtpEmail.setSubject(subject);
+        sendSmtpEmail.setTextContent(body);
+
+        try {
+            brevoModel.CreateSmtpEmail result = apiInstance.sendTransacEmail(sendSmtpEmail);
+            LOG.info("Plain text email sent successfully to {}. Message ID: {}", recipient, result.getMessageId());
+        } catch (ApiException e) {
+            LOG.error("Failed to send plain text email: {} (Status: {}, Body: {})", 
+                e.getMessage(), e.getCode(), e.getResponseBody());
+        }
+    }
+
+    public void sendHtml(String subject, String html) {
+        if (apiInstance == null) {
+            LOG.error("Brevo API client is not initialized; skipping HTML email.");
+            return;
+        }
+
+        String resolvedRecipient = recipient == null ? "" : recipient.trim();
+        String resolvedSenderEmail = senderEmail == null ? "" : senderEmail.trim();
+        String resolvedSenderName = senderName == null ? "" : senderName.trim();
+
+        if (resolvedRecipient.isBlank() || resolvedSenderEmail.isBlank()) {
+            LOG.error("Missing recipient or sender email for HTML email.");
+            return;
+        }
+        if (resolvedSenderName.isBlank()) {
+            resolvedSenderName = "My Job Scraper";
+        }
+
+        SendSmtpEmail sendSmtpEmail = new SendSmtpEmail();
+        sendSmtpEmail.setSender(new SendSmtpEmailSender().name(resolvedSenderName).email(resolvedSenderEmail));
+        sendSmtpEmail.setTo(Collections.singletonList(new SendSmtpEmailTo().email(resolvedRecipient)));
+        sendSmtpEmail.setSubject(subject);
+        sendSmtpEmail.setHtmlContent(html);
+
+        try {
+            brevoModel.CreateSmtpEmail result = apiInstance.sendTransacEmail(sendSmtpEmail);
+            LOG.info("HTML email sent successfully to {}. Message ID: {}", recipient, result.getMessageId());
+        } catch (ApiException e) {
+            LOG.error("Failed to send HTML email: {} (Status: {}, Body: {})", 
+                e.getMessage(), e.getCode(), e.getResponseBody());
+        }
+    }
 }
