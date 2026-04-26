@@ -17,7 +17,10 @@ public class MyJobsTelegramBot extends TelegramLongPollingBot {
     private final String botUsername;
     private final String botToken;
     private final BotService botService;
-    private final long startupTime = System.currentTimeMillis() / 1000;
+    private static final long STARTUP_TIME = System.currentTimeMillis() / 1000;
+    
+    // Simple deduplication map: ChatId -> LastText:Timestamp
+    private static final java.util.Map<Long, String> LAST_MESSAGE = new java.util.concurrent.ConcurrentHashMap<>();
 
     // Required for Quarkus CDI Proxy
     protected MyJobsTelegramBot() {
@@ -54,15 +57,24 @@ public class MyJobsTelegramBot extends TelegramLongPollingBot {
             String text = update.getMessage().getText();
             Long chatId = update.getMessage().getChatId();
             Integer messageDate = update.getMessage().getDate();
+            Integer updateId = update.getUpdateId();
 
-            // Ignore messages sent before the bot started (backlog)
-            if (messageDate != null && messageDate < startupTime - 2) {
-                LOG.info("Ignoring backlog message from {}: '{}' (sent at {}, startup at {})", 
-                        chatId, text, messageDate, startupTime);
+            // 1. Ignore messages sent before the bot started (backlog)
+            if (messageDate != null && messageDate < STARTUP_TIME - 10) {
+                LOG.info("Ignoring backlog message from {} (UpdateID: {}): '{}' (msgDate: {}, startup: {}, diff: {})", 
+                        chatId, updateId, text, messageDate, STARTUP_TIME, (STARTUP_TIME - messageDate));
                 return;
             }
 
+            // 2. Simple deduplication: ignore same message from same user if it arrives within 2 seconds
+            String currentKey = text + ":" + (System.currentTimeMillis() / 2000); // 2-sec window
+            String lastKey = LAST_MESSAGE.put(chatId, currentKey);
+            if (currentKey.equals(lastKey)) {
+                return; // Skip duplicate
+            }
+
             try {
+                LOG.info("Processing message from {} (UpdateID: {}): '{}'", chatId, updateId, text);
                 String response = botService.processMessage(chatId, text);
                 sendMessage(chatId, response);
             } catch (Exception e) {

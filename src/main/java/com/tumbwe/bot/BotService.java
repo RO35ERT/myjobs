@@ -31,8 +31,6 @@ public class BotService {
     @Transactional
     public String processMessage(Long chatId, String text) {
         TelegramUser user = TelegramUser.findByChatId(chatId);
-        LOG.info("Processing message from {}: '{}' (User exists: {}, State: {})", 
-                chatId, text, (user != null), (user != null ? user.state : "N/A"));
         
         if (text == null) return "⚠️ Empty message.";
         if (text.length() > 500) {
